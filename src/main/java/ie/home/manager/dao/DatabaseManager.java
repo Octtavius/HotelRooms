@@ -3,7 +3,7 @@ package ie.home.manager.dao;
 import java.util.ArrayList;
 import java.util.List;
 
-import ie.home.Room;
+import ie.home.data.Room;
 
 public class DatabaseManager {
 

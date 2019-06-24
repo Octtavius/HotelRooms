@@ -1,53 +1,55 @@
 package ie.home;
 
-import java.util.ArrayList;
+import static org.junit.Assert.assertTrue;
+
 import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import ie.home.data.Room;
 import ie.home.manager.dao.DatabaseManager;
 
 public class HotelRoomTest {
 	
-	Room roomsCombination[] = null;
-	List<Room[]> finalResult = new ArrayList<Room[]>(3);
-	
-	
-	RoomFinder rf;
+	RoomFinder roomFinder;
 	DatabaseManager dbManager;
 	
 	@Before
 	public void setUp() throws Exception {
 		dbManager = new DatabaseManager();
-		rf = new RoomFinder(dbManager); 
+		roomFinder = new RoomFinder(dbManager); 
 	}
 
 	@After
 	public void tearDown() throws Exception {
-		rf = null;
+		roomFinder = null;
 		dbManager = null;
 	}
 	
-	List<Room> rooms;
-	double[] prices = null;
-	
 	@Test
 	public void tests() {
-		List<Room[]> cheapestRooms = rf.findCheapestRooms(3);
+		int guests = 3;
+		int topRoomsAmount = 3;
+		List<List<Room>> cheapestRooms = roomFinder.findCheapestRooms(guests, topRoomsAmount);
 		
+		assertTrue("Retrieved more than "+topRoomsAmount+" rooms: ", cheapestRooms.size() <= topRoomsAmount);
+		
+		System.out.println("--------");
 		for (int i =0; i < cheapestRooms.size(); i++) {
-			Room[] comb = cheapestRooms.get(i);
-			double temppr = 0;
-			for (int j = 0; j < comb.length; j++) {
-				Room r = comb[j];
+			List<Room> combination = cheapestRooms.get(i);
+			double price = 0;
+			for (int j = 0; j < combination.size(); j++) {
+				Room r = combination.get(j);
 				if (r != null) {
 					
-					temppr += r.getPrice()*r.getMinGuests();
+					price += r.getPrice()*r.getMinGuests();
+					System.out.println(r.getId() + " | " + r.getType() + " | " + r.getStartDate() + " | " + r.getEndDate() + " | " + r.getMinGuests() + " | " + r.getMaxGuests() + " | " + r.getPrice());
 				}
 			}
-			System.out.println("prL: " + temppr);
+			System.out.println("Price: " + price);
+			System.out.println("--------");
 		}
 	}
 }

@@ -3,7 +3,7 @@ package ie.home.helpers;
 import java.util.ArrayList;
 import java.util.List;
 
-import ie.home.Room;
+import ie.home.data.Room;
 
 public class RoomHelper {
 
@@ -16,17 +16,7 @@ public class RoomHelper {
 			int maxGuests = r.getMaxGuests();
 			
 			for (int j = maxGuests; j >= r.getMinGuests(); j--) {
-				Room nr = new Room();
-				nr.setId(r.getId());
-				nr.setType(r.getType());
-				nr.setStartDate(r.getStartDate());
-				nr.setEndDate(r.getEndDate());
-				nr.setMinGuests(j);
-				nr.setMaxGuests(j);
-				nr.setPriceType("pp");
-				
-				nr.setPrice(r.getPrice()/j);
-				
+				Room nr = new Room(r.getId(),r.getType(),r.getStartDate(),r.getEndDate(), j, j, r.getPrice()/j, "pp");				
 				ppRooms.add(nr);
 			}
 		}

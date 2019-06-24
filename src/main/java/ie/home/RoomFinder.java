@@ -4,44 +4,46 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import ie.home.data.Room;
 import ie.home.helpers.RoomHelper;
 import ie.home.manager.dao.DatabaseManager;
 
 public class RoomFinder {
-	List<Room[]> finalResult = new ArrayList<Room[]>(3);
 	
-	DatabaseManager dbManager;
+	private DatabaseManager dbManager;
 	
 	public RoomFinder(DatabaseManager dbManager) {
 		this.dbManager = dbManager; 
 	}
 	
-	public List<Room[]> findCheapestRooms(int guests) {
-		List<Room> set = dbManager.getRoomsFromDb();
-		double[] prices = new double[3];
-		set = RoomHelper.convertPUtoPP(set);
-		int roomsCount = set.size();
+	public List<List<Room>> findCheapestRooms(int guests, int roomAmount) {
+		List<List<Room>> cheapestRooms = new ArrayList<List<Room>>(roomAmount);
+		
+		List<Room> availableRooms = dbManager.getRoomsFromDb();
+		double[] prices = new double[roomAmount];
+		availableRooms = RoomHelper.convertPUtoPP(availableRooms);
+		int roomsCount = availableRooms.size();
   
 		for (int i = 0; i < (1 << roomsCount); i++) 
 		{ 
-			Room roomsCombination[] = new Room[roomsCount];
+			List<Room> roomsCombination = new ArrayList<Room>();
 			int minGuestsRequired = 0;
 			int maxGuestsAllowed = 0;
 			double price = 0;
 			
 			boolean sameRoomInCombination = false;
-			// Print current subset 
+			// create combination
 			for (int j = 0; j < roomsCount; j++) {
 			    if ((i & (1 << j)) > 0) {
-			    	if (containsRoom(set.get(j), roomsCombination)) {
+			    	if (containsRoom(availableRooms.get(j), roomsCombination)) {
 			    		sameRoomInCombination = true;
 			    		break;
 			    	}
 			    	
-			    	price += set.get(j).getPrice()*set.get(j).getMinGuests();
-			    	minGuestsRequired += set.get(j).getMinGuests();
-			    	maxGuestsAllowed += set.get(j).getMaxGuests();
-		        	roomsCombination[j] = set.get(j);
+			    	price += availableRooms.get(j).getPrice() * availableRooms.get(j).getMinGuests();
+			    	minGuestsRequired += availableRooms.get(j).getMinGuests();
+			    	maxGuestsAllowed += availableRooms.get(j).getMaxGuests();
+		        	roomsCombination.add(availableRooms.get(j));
 		        }
 		    }
 			
@@ -51,36 +53,37 @@ public class RoomFinder {
 			}
 			
 		    if (minGuestsRequired >= guests && maxGuestsAllowed >= guests) {
-		    	if (finalResult.isEmpty()) {		    		
+		    	if (cheapestRooms.isEmpty()) {		    		
 		    		prices[0] = price;			
-		    		finalResult.add(roomsCombination);
+		    		cheapestRooms.add(roomsCombination);
 		    		continue;
 		    	}
 		    	
-		    	if (finalResult.size() < 3) {
-		    		finalResult.add(roomsCombination);
-		    		prices[finalResult.size()-1] = price;
+		    	if (cheapestRooms.size() < roomAmount) {
+		    		cheapestRooms.add(roomsCombination);
+		    		prices[cheapestRooms.size()-1] = price;
 		    		continue;
 		    		
 		    	}
 
+		    	// replace price with highest price from array if exists
 				double pr = price;
 				IntStream.range(0, prices.length).parallel()
-					.reduce((a,b)->prices[a]<prices[b]? b: a)
-				 	.ifPresent(ix -> {
-				 		if (prices[ix] > pr) {				                		 
-				            prices[ix] = pr;
-				            finalResult.set(ix, roomsCombination);
+					.reduce((a,b)-> prices[a] < prices[b] ? b : a)
+				 	.ifPresent(idx -> {
+				 		if (prices[idx] > pr) {				                		 
+				            prices[idx] = pr;
+				            cheapestRooms.set(idx, roomsCombination);
 				         }
 				 	});
 			}
 		} 
 		
-		return finalResult;
+		return cheapestRooms;
 	}
 	
-	private boolean containsRoom(Room room, Room[] rooms) {
-		for (Room roomEl : rooms) {
+	private boolean containsRoom(Room room, List<Room> roomsCombination) {
+		for (Room roomEl : roomsCombination) {
 			if (roomEl != null && roomEl.getId() == room.getId()) {
 				return true;
 			}
