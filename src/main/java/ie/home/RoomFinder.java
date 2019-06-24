@@ -26,7 +26,7 @@ public class RoomFinder {
   
 		for (int i = 0; i < (1 << roomsCount); i++) 
 		{ 
-			List<Room> roomsCombination = new ArrayList<Room>();
+			List<Room> roomsCombination = new ArrayList<Room>(roomsCount);
 			int minGuestsRequired = 0;
 			int maxGuestsAllowed = 0;
 			double price = 0;
@@ -77,13 +77,15 @@ public class RoomFinder {
 				         }
 				 	});
 			}
-		} 
+		}
+		
+		
 		
 		return cheapestRooms;
 	}
 	
-	private boolean containsRoom(Room room, List<Room> roomsCombination) {
-		for (Room roomEl : roomsCombination) {
+	private boolean containsRoom(Room room, List<Room> rooms) {
+		for (Room roomEl : rooms) {
 			if (roomEl != null && roomEl.getId() == room.getId()) {
 				return true;
 			}

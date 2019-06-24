@@ -16,7 +16,7 @@ public class RoomHelper {
 			int maxGuests = r.getMaxGuests();
 			
 			for (int j = maxGuests; j >= r.getMinGuests(); j--) {
-				Room nr = new Room(r.getId(),r.getType(),r.getStartDate(),r.getEndDate(), j, j, r.getPrice()/j, "pp");				
+				Room nr = new Room(r.getId(),r.getType(),r.getStartDate(),r.getEndDate(), j, j, r.getPrice()/j, r.getPriceType());				
 				ppRooms.add(nr);
 			}
 		}
