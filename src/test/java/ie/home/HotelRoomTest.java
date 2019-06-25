@@ -32,6 +32,11 @@ public class HotelRoomTest {
 	@Test
 	public void tests() {
 		int cheapestRoomsAmount = 3;
+		
+		/* If you want to test on different amount of guests, comment out the assertion 
+		 * from line 55
+		 * The assertion is created for 7 guests only. 
+		 */
 		int guests = 7;
 		List<List<Room>> cheapestRoomsCombinations = roomFinder.findCheapestRooms(guests, cheapestRoomsAmount);
 		assertTrue("Retrieved more than "+cheapestRoomsAmount+" rooms: ", cheapestRoomsCombinations.size() <= cheapestRoomsAmount);				
@@ -39,12 +44,14 @@ public class HotelRoomTest {
 		Room[][] sampleRooms = getSampleRooms();
 		AtomicInteger count = new AtomicInteger(0);
 
+		assertTrue("Combination should contain "+guests+" rooms", cheapestRoomsCombinations.size() == cheapestRoomsAmount);
+		
 		cheapestRoomsCombinations.stream()
 		.forEach(combination -> {
-			assertTrue("Combination should contain 3 rooms", combination.size() == 3);	
 			
 			AtomicInteger index = new AtomicInteger(0);
 			combination.forEach(room -> {
+
 				assertTrue("Expected rooms don't match", sampleRooms[count.get()][index.get()].equals(room));
 				index.incrementAndGet();
 			});
@@ -64,9 +71,9 @@ public class HotelRoomTest {
 		
 		Room[][] sampleRooms = new Room[][]
 				{
-					{r2,r3,r4},
-					{r1,r2,r5},
-					{r1,r2,r4},
+					{r2,r1,r3},
+					{r2,r4},
+					{r2,r5},
 				};
 		return sampleRooms;
 	}
@@ -74,16 +81,12 @@ public class HotelRoomTest {
 	private void print(List<List<Room>> cheapestRooms) {
 		System.out.println("--------");
 		for (List<Room> combination : cheapestRooms) {
-			double price = 0;
 			for (Room room : combination) {
 				if (room != null) {
-					
-					price += room.getPrice()*room.getMinGuests();
 					System.out.println(room.getId() + " | " + room.getType() + " | " + room.getStartDate() + " | " + room.getEndDate() + " | " + room.getMinGuests() + " | " + room.getMaxGuests() + " | " + room.getPrice() + " | " + room.getPriceType());
 				}
 			}
 
-			System.out.println("Price: " + price);
 			System.out.println("--------");
 		}
 		
